@@ -59,7 +59,6 @@ private slots:
     void chooseDev();
     void begin();
     void end();
-    void findQQ();
 
     void about();
 
@@ -116,7 +115,7 @@ private:
     QAction *chooseDevAction;		// 选择打开的网卡
     QAction *beginAction;			// 开始捕获
     QAction *endAction;				// 停止捕获
-    QAction *findQQAction;			// 捕获QQ信息
+    //QAction *findQQAction;			// 捕获QQ信息
 
     QAction *aboutAction;			// 关本于程序
     QAction *aboutQtAction;			// 关于Qt

@@ -6,7 +6,6 @@
 #include "settinginfo.h"
 #include "prototreeview.h"
 #include "capturethread.h"
-#include "findqqdialog.h"
 #include "sniffer.h"
 
 
@@ -135,7 +134,7 @@ void MainWindow::chooseDev()
                 begin();
             } else {
                 beginAction->setEnabled(true);
-                findQQAction->setEnabled(true);
+               // findQQAction->setEnabled(true);
             }
         }
     }
@@ -182,7 +181,7 @@ void MainWindow::begin()
 
         chooseDevAction->setEnabled(false);
         beginAction->setEnabled(false);
-        findQQAction->setEnabled(false);
+       // findQQAction->setEnabled(false);
         endAction->setEnabled(true);
 
     } else {
@@ -199,7 +198,7 @@ void MainWindow::end()
 {
     chooseDevAction->setEnabled(true);
     beginAction->setEnabled(true);
-    findQQAction->setEnabled(true);
+    //findQQAction->setEnabled(true);
 
     endAction->setEnabled(false);
 
@@ -208,17 +207,6 @@ void MainWindow::end()
     if (mainTreeView->isChanged()) {
         saveAction->setEnabled(true);
     }
-}
-
-/**
- * @brief MainWindow::findQQ
- * @desc  打开QQDialog对话框
- */
-void MainWindow::findQQ()
-{
-    FindQQDialog findQQDialog(this, this, sniffer);
-
-    findQQDialog.exec();
 }
 
 /**
@@ -457,11 +445,11 @@ void MainWindow::createActions()
     endAction->setEnabled(false);
     connect(endAction, SIGNAL(triggered()), this, SLOT(end()));
 
-    findQQAction = new QAction(tr("捕获QQ号码"), this);
-    findQQAction->setIcon(QIcon(":/res/images/findqq.png"));
-    findQQAction->setStatusTip(tr("捕获数据包包含的QQ号码"));
-    findQQAction->setEnabled(false);
-    connect(findQQAction, SIGNAL(triggered()), this, SLOT(findQQ()));
+//    findQQAction = new QAction(tr("捕获QQ号码"), this);
+//    findQQAction->setIcon(QIcon(":/res/images/findqq.png"));
+//    findQQAction->setStatusTip(tr("捕获数据包包含的QQ号码"));
+//    findQQAction->setEnabled(false);
+//    connect(findQQAction, SIGNAL(triggered()), this, SLOT(findQQ()));
 
     aboutAction = new QAction(tr("关于"), this);
     aboutAction->setIcon(QIcon(":/res/images/about.png"));
@@ -500,7 +488,7 @@ void MainWindow::createMenus()
     toolsMenu->addAction(beginAction);
     toolsMenu->addAction(endAction);
     toolsMenu->addSeparator();
-    toolsMenu->addAction(findQQAction);
+    //toolsMenu->addAction(findQQAction);
 
     menuBar()->addSeparator();
 
@@ -530,7 +518,7 @@ void MainWindow::createToolBars()
     workToolBar->addAction(beginAction);
     workToolBar->addAction(endAction);
     workToolBar->addSeparator();
-    workToolBar->addAction(findQQAction);
+    //workToolBar->addAction(findQQAction);
 
     infoToolBar = addToolBar(tr("帮助"));
     infoToolBar->addAction(aboutAction);

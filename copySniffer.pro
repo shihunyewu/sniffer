@@ -22,8 +22,6 @@ SOURCES += \
     csniffer.cpp \
     sniffer.cpp \
     choosedevdialog.cpp \
-    findqqdialog.cpp \
-    findqqthread.cpp \
     prototreeview.cpp
 
 HEADERS  += \
@@ -35,8 +33,6 @@ HEADERS  += \
     csniffer.h \
     sniffer.h \
     choosedevdialog.h \
-    findqqdialog.h \
-    findqqthread.h \
     prototreeview.h
 
 FORMS    += \
