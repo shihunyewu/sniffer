@@ -1,3 +1,4 @@
+#pragma once
 #ifndef LISTTREEVIEW_H
 #define LISTTREEVIEW_H
 

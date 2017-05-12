@@ -1,21 +1,6 @@
-// =====================================================================================
-//
-//       Filename:settinginfo.h
-//
-//    Description:程序设置信息类
-//
-//        Version:  1.0
-//        Created:
-//       Revision:  none
-//       Compiler:  g++
-//
-//         Author:  sgy
-//
-// =====================================================================================
-
-
+  #pragma once
 #ifndef SETTINGINFO_H
-#define SETTINGINFO_H
+
 
 #endif // SETTINGINFO_H
 

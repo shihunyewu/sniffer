@@ -18,7 +18,7 @@ ListTreeView::ListTreeView()
 
 /**
  * @brief ListTreeView::reBulidInfo
- * @desc  重新创建
+ * @desc  删除已有数据
  */
 void ListTreeView::reBulidInfo()
 {
@@ -82,10 +82,11 @@ void ListTreeView::getOrderNumber(QModelIndex &index, QString &strNumber)
 /**
  * @brief ListTreeView::isChanged
  * @return
- * @desc  ？？？
+ * @desc  判断ListTreeView中是否有数据
  */
 bool ListTreeView::isChanged()
 {
+    //获取和正则表达式 "*" 相符的Item，即查看表中是否有Item
     QList<QStandardItem *>tmp = mainModel->findItems("*",Qt::MatchWildcard|Qt::MatchRecursive);
 
     if(tmp.size()!=0)
