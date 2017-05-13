@@ -77,6 +77,7 @@ void ListTreeView::addOneCaptureItem(QString strNum, QString strTime, QString st
 void ListTreeView::getOrderNumber(QModelIndex &index, QString &strNumber)
 {
     strNumber = mainModel->data(index, 0).toString();
+  strNumber=  mainModel->item(index.row(),0)->text();
 }
 
 /**

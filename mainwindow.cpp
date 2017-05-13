@@ -300,6 +300,11 @@ void MainWindow::setCurrentFile(const QString &fileName)
     }
 }
 
+/**
+ * @brief MainWindow::addDataToWidget
+ * @param nowSelect
+ * @desc 将mainTreeView中选中的内容放到explainTreeView中
+ */
 void MainWindow::addDataToWidget(const QItemSelection &nowSelect)
 {
     QModelIndexList items = nowSelect.indexes();
@@ -309,7 +314,6 @@ void MainWindow::addDataToWidget(const QItemSelection &nowSelect)
     mainTreeView->getOrderNumber(index, strNumber);
 
     int iNumber = strNumber.toInt();
-
     if ((unsigned int)iNumber <= sniffer->snifferDataVector.size()) {
         explainTreeView->ShowTreeAnalyseInfo(&(sniffer->snifferDataVector.at(iNumber-1)));
         explainEdit->setText(sniffer->snifferDataVector.at(iNumber-1).protoInfo.strSendInfo);

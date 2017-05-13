@@ -193,15 +193,15 @@ bool CSniffer::setDevsFilter(const char *szFilter)
     return true;
 }
 
-bool CSniffer::captureByCallBack(pSnifferCB func)
-{
-    if (adHandle != NULL) {
-        pcap_loop(adHandle, 0, func, (unsigned char *)pDumpFile);
-        return true;
-    }
+//bool CSniffer::captureByCallBack(pSnifferCB func)
+//{
+//    if (adHandle != NULL) {
+//        pcap_loop(adHandle, 0, func, (unsigned char *)pDumpFile);
+//        return true;
+//    }
 
-    return false;
-}
+//    return false;
+//}
 
 int CSniffer::captureOnce()
 {

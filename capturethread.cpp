@@ -82,7 +82,7 @@ void CaptureThread::run()
         unsigned int     ip_len, ip_all_len;
         unsigned char   *pByte;
 
-        // 获得 Mac 头
+        // 获得 Mac 头，pkt_data直接就是 Mac 数据包
         eh = (eth_header *)sniffer->pkt_data;
 
         QByteArray DMac, SMac;
@@ -98,7 +98,7 @@ void CaptureThread::run()
         tmpSnifferData.protoInfo.strSMac = tmpSnifferData.protoInfo.strSMac
                                            + SMac[0] + SMac[1] + "-" + SMac[2] + SMac[3] + "-" + SMac[4]  + SMac[5] + "-"
                                            + SMac[6] + SMac[7] + "-" + SMac[8] + SMac[9] + "-" + SMac[10] + SMac[11] ;
-        // 获得 IP 协议头
+        // 获得 IP 协议头，IP包就是偏移十四个字节
         ih = (ip_header *)(sniffer->pkt_data + 14);
 
         // 获得 IP 头的大小
@@ -125,8 +125,8 @@ void CaptureThread::run()
             tmpSnifferData.protoInfo.strNextProto += "TCP (Transmission Control Protocol)";
             tmpSnifferData.protoInfo.strTranProto += "TCP 协议 (Transmission Control Protocol)";
             th = (tcp_header *)((unsigned char *)ih + ip_len);      // 获得 TCP 协议头
-            sport = qFromLittleEndian(th->sport);                               // 获得源端口和目的端口
-            dport = qFromLittleEndian(th->dport);
+            sport = qFromBigEndian(th->sport);                               // 获得源端口和目的端口
+            dport = qFromBigEndian(th->dport);
 
             if (sport == FTP_PORT || dport == FTP_PORT) {
                 tmpSnifferData.strProto += " (FTP)";
@@ -149,8 +149,9 @@ void CaptureThread::run()
                 tmpSnifferData.strProto += " (HTTP)";
                 tmpSnifferData.protoInfo.strAppProto += "HTTP (Hyper Text Transport Protocol)";
                 tmpSnifferData.protoInfo.strSendInfo = rawByteData.remove(0, 54);
-            } else {
-                tmpSnifferData.protoInfo.strAppProto += "Unknown Proto";
+            }else
+            {
+                tmpSnifferData.protoInfo.strAppProto+="Unknown protocol";
             }
             break;
         case UDP_SIG:
@@ -158,8 +159,8 @@ void CaptureThread::run()
             tmpSnifferData.protoInfo.strNextProto += "UDP (User Datagram Protocol)";
             tmpSnifferData.protoInfo.strTranProto += "UDP 协议 (User Datagram Protocol)";
             uh = (udp_header *)((unsigned char *)ih + ip_len);      // 获得 UDP 协议头
-            sport = qFromLittleEndian(uh->sport);                               // 获得源端口和目的端口
-            dport = qFromLittleEndian(uh->dport);
+            sport = qFromBigEndian(uh->sport);                             // 获得源端口和目的端口
+            dport = qFromBigEndian(uh->dport);
             pByte = (unsigned char *)ih + ip_len + sizeof(udp_header);
 
             if (sport == DNS_PORT || dport == DNS_PORT) {
@@ -170,7 +171,14 @@ void CaptureThread::run()
                 tmpSnifferData.protoInfo.strAppProto += "SNMP (Simple Network Management Protocol)";
             } else if (*pByte == QQ_SIGN && (sport == QQ_SER_PORT || dport == QQ_SER_PORT)) {
                 tmpSnifferData.strProto += " (QQ)";
-            } else {
+                tmpSnifferData.protoInfo.strAppProto += "OICQ(protocol for QQ)";
+            } else if (sport == DHCP_PORT || dport == DHCP_PORT) {
+                tmpSnifferData.strProto += " (DHCP)";
+                tmpSnifferData.protoInfo.strAppProto += "DHCP(Dynamic Host Configuration Protocol)";
+            }else if (sport == NBNS_PORT || dport == NBNS_PORT) {
+                tmpSnifferData.strProto = " (NBNS)";
+                tmpSnifferData.protoInfo.strAppProto += "NBNS(NetBIOS Name Service)";
+            }else {
                 tmpSnifferData.protoInfo.strAppProto += "Unknown Proto";
             }
             break;

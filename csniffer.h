@@ -49,7 +49,7 @@ public:
     bool closeNetDev();												// 关闭当前打开的网络设备
     bool setDevsFilter(const char *szFilter);						// 对当前打开设备设置过滤器
     int	 captureOnce();												// 捕获一次网络数据包
-    bool captureByCallBack(pSnifferCB func);						// 以回调函数方式捕获数据
+    //bool captureByCallBack(pSnifferCB func);						// 以回调函数方式捕获数据
 
     // 只有当接口打开时，调用 openDumpFile() 才是有效的
     bool openDumpFile(const char *szFileName);						// 打开堆文件（文件保存数据包）

@@ -112,6 +112,8 @@ typedef struct _udp_header
 // UDP 协议
 #define DNS_PORT		(53)
 #define SNMP_PORT		(161)
+#define DHCP_PORT       (67)
+#define NBNS_PORT       (137)
 
 // 网络设备信息结构
 struct NetDevInfo
