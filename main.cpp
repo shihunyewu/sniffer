@@ -14,7 +14,7 @@ int main(int argc,char *argv[])
     QTextCodec::setCodecForLocale(tc);
     QTextCodec::setCodecForTr(tc);
 
-    //加载汉化文件
+    //加载汉化文件，可以将tr中的英文翻译成中文
     QTranslator translator;
     translator.load(":/res/language/qt_zh_CN.qm");
     app.installTranslator(&translator);

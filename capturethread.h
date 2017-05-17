@@ -23,6 +23,7 @@ protected:
     void run();
 
 private:
+    QString _char_to_char(unsigned short,int index);//从flag中取第index位的值
     volatile bool bStopped;
     ListTreeView  *mainTree;
     Sniffer       *sniffer;

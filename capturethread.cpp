@@ -2,6 +2,8 @@
 #include "listtreeview.h"
 #include "sniffer.h"
 #include <QtEndian>
+#include <winuser.h>
+#include <QMessageBox>
 
 //#include "sniffertype.h"
 
@@ -82,6 +84,9 @@ void CaptureThread::run()
         unsigned int     ip_len, ip_all_len;
         unsigned char   *pByte;
 
+        //获取tcp应答号之类
+
+
         // 获得 Mac 头，pkt_data直接就是 Mac 数据包
         eh = (eth_header *)sniffer->pkt_data;
 
@@ -125,8 +130,31 @@ void CaptureThread::run()
             tmpSnifferData.protoInfo.strNextProto += "TCP (Transmission Control Protocol)";
             tmpSnifferData.protoInfo.strTranProto += "TCP 协议 (Transmission Control Protocol)";
             th = (tcp_header *)((unsigned char *)ih + ip_len);      // 获得 TCP 协议头
+
+            //做大小端转换
             sport = qFromBigEndian(th->sport);                               // 获得源端口和目的端口
             dport = qFromBigEndian(th->dport);
+
+
+            /*
+             * @desc :填充tcp的序列号，应答号，以及窗口值
+             * */
+            tmpSnifferData.protoInfo.seq_no += QString("%1").arg(qFromBigEndian(th->seq_no),0,10);
+            tmpSnifferData.protoInfo.ack_no += QString("%1").arg(qFromBigEndian(th->ack_no),0,10);
+            tmpSnifferData.protoInfo.wnd_size += QString("%1").arg(qFromBigEndian(th->wnd_size),0,10);
+
+
+            tmpSnifferData.protoInfo.flag += QString("%1").arg(qFromBigEndian(th->flag),0,10);
+
+
+            tmpSnifferData.protoInfo.urg += _char_to_char(th->flag,TCP_URG);
+            tmpSnifferData.protoInfo.ack += _char_to_char(th->flag,TCP_ACK);
+            tmpSnifferData.protoInfo.psh += _char_to_char(th->flag,TCP_PSH);
+            tmpSnifferData.protoInfo.rst += _char_to_char(th->flag,TCP_RST);
+            tmpSnifferData.protoInfo.syn += _char_to_char(th->flag,TCP_SYN);
+            tmpSnifferData.protoInfo.fin += _char_to_char(th->flag,TCP_FIN);
+
+
 
             if (sport == FTP_PORT || dport == FTP_PORT) {
                 tmpSnifferData.strProto += " (FTP)";
@@ -141,12 +169,12 @@ void CaptureThread::run()
                 tmpSnifferData.strProto += " (POP3)";
                 tmpSnifferData.protoInfo.strAppProto += "POP3 (Post Office Protocol 3)";
             } else if (sport == HTTPS_PORT || dport == HTTPS_PORT) {
-                tmpSnifferData.strProto += " (HTTPS)";
+                tmpSnifferData.strProto = "HTTPS";
                 tmpSnifferData.protoInfo.strAppProto += "HTTPS (Hypertext Transfer "
                                                         "Protocol over Secure Socket Layer)";
             } else if (sport == HTTP_PORT || dport == HTTP_PORT ||
                      sport == HTTP2_PORT || dport == HTTP2_PORT) {
-                tmpSnifferData.strProto += " (HTTP)";
+                tmpSnifferData.strProto = "HTTP";
                 tmpSnifferData.protoInfo.strAppProto += "HTTP (Hyper Text Transport Protocol)";
                 tmpSnifferData.protoInfo.strSendInfo = rawByteData.remove(0, 54);
             }else
@@ -170,13 +198,37 @@ void CaptureThread::run()
                 tmpSnifferData.strProto += " (SNMP)";
                 tmpSnifferData.protoInfo.strAppProto += "SNMP (Simple Network Management Protocol)";
             } else if (*pByte == QQ_SIGN && (sport == QQ_SER_PORT || dport == QQ_SER_PORT)) {
-                tmpSnifferData.strProto += " (QQ)";
+                tmpSnifferData.strProto = "OICQ";
                 tmpSnifferData.protoInfo.strAppProto += "OICQ(protocol for QQ)";
+
+
+                unsigned short qq_version = *(short *)(pByte + 1);
+                qq_version = qFromBigEndian(qq_version);
+                char qq_ver_char[10];
+                sprintf(qq_ver_char,"%x",qq_version);
+                tmpSnifferData.protoInfo.oicq.qq_version += QString("%1").arg(qq_version,0,16);
+
+                unsigned short qq_command = *(short *)(pByte + 3);
+                qq_command = qFromBigEndian(qq_command);
+                tmpSnifferData.protoInfo.oicq.getCommand(qq_command);
+
+                unsigned short qq_sequence = *(short *)(pByte + 5);
+                qq_sequence = qFromBigEndian(qq_sequence);
+                tmpSnifferData.protoInfo.oicq.qq_sequence +=QString("%1").arg(qq_sequence);
+
+                unsigned int qq_no = *(int *)(pByte + QQ_NUM_OFFSET);
+                qq_no = qFromBigEndian(qq_no);
+                tmpSnifferData.protoInfo.oicq.qq_number += QString("%1").arg(qq_no);
+
+//                char text[60];
+//                sprintf(text,"version:%x\ncommand:%u\nsequence:%u\nqq:%u",qq_version,qq_command,qq_sequence,qq_no);
+//                MessageBoxA(0,text,0,0);
+
             } else if (sport == DHCP_PORT || dport == DHCP_PORT) {
-                tmpSnifferData.strProto += " (DHCP)";
+                tmpSnifferData.strProto = "DHCP";
                 tmpSnifferData.protoInfo.strAppProto += "DHCP(Dynamic Host Configuration Protocol)";
             }else if (sport == NBNS_PORT || dport == NBNS_PORT) {
-                tmpSnifferData.strProto = " (NBNS)";
+                tmpSnifferData.strProto = "NBNS";
                 tmpSnifferData.protoInfo.strAppProto += "NBNS(NetBIOS Name Service)";
             }else {
                 tmpSnifferData.protoInfo.strAppProto += "Unknown Proto";
@@ -200,12 +252,28 @@ void CaptureThread::run()
         tmpSnifferData.protoInfo.strSPort += szSPort;
         tmpSnifferData.protoInfo.strDPort += szDPort;
 
+
+
         sniffer->snifferDataVector.push_back(tmpSnifferData);
 
         mainTree->addOneCaptureItem(tmpSnifferData.strNum, tmpSnifferData.strTime,
                                     tmpSnifferData.strSIP, tmpSnifferData.strDIP,
                                     tmpSnifferData.strProto, tmpSnifferData.strLength);
+
     }
+}
+
+
+QString CaptureThread::_char_to_char(unsigned short value,int index)
+{
+
+    char reValue[6];
+    value = qFromBigEndian(value);
+    value = value<<index;
+    value = value>>15;
+    sprintf(reValue,"%u",value);
+
+    return QString(reValue);
 }
 
 void CaptureThread::stop()
